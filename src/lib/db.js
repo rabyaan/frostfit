@@ -1,17 +1,27 @@
-import mysql from "mysql2/promise";
+const mysql = require('mysql2/promise');
+require('dotenv').config(); // Load .env file
 
-// Create a connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME, // Replace with your database name
-  waitForConnections: true,
-  connectionLimit: 10, // Adjust based on your requirements
-  queueLimit: 0, // No limit on queued connection requests
+console.log('Environment Variables:', {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
 });
 
-// Export the pool for reuse
-export function getDBConnection() {
-  return pool;
+// Create a MySQL connection pool
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+});
+
+async function query(sql, params) {
+    const [results] = await pool.execute(sql, params);
+    return results;
 }
+
+module.exports = { pool, query };
